@@ -4,6 +4,12 @@ A load of files with mixed functionality:
 - Fourier Transform: dFT.m
 - Mass-Spring-Damper: quickMSD.m
 
+It's highly recommended to do the following:
+1. Create a file named "startup.m" under '/Documents/MATLAB'
+2. Create a folder somewhere, eg. on the dreaded OneDrive, to save the MATLAB functions that you'll use
+3. In "startup.m", copy and paste the folder directory into an addpath() function, ie. addpath("C:\Users\Korberon\OneDrive\MatLab Functions") ;
+By then writing any function in the folder designated, it can be called from anywhere! (requires a MATLAB restart to run for first time)
+
 %% annotable.m 
 % Function to create annotation tables (similar to a legend) 
 %% Inputs  : 
