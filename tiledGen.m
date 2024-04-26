@@ -33,7 +33,7 @@ function [fg,tl,ax,varargout] = tiledGen(N,M,dicing,varargin)
 if nargin == 0 , N = 2 ; M = 2 ; end 
 if nargin == 2 , dicing = ones(N*M,2) ; end 
 if size(dicing) == 0 , dicing = ones(N*M,2) ; end 
-fontSize = 15 ;
+fontSize = 15 ; 
 
 fg = figure ; fg.Position = [(1920-1200)/2,(1080-600)/2,1200,600] ; 
 tl = tiledlayout(N,M) ;
@@ -61,10 +61,10 @@ end
 ax = gobjects(N,M) ; 
 i = 0 ; 
 k = 0 ; 
-for m = 1 : M 
-    for n = 1 : N 
+for n = 1 : N 
+    for m = 1 : M 
         i = i + 1 ; 
-        if i <= size(dicing,1)
+        if i <= size(dicing,1) 
             ax(n,m) = nexttile(dicing(i,:)) ; ax(n,m).Box = 'on' ; colororder(ax(n,m),'k') ; 
             if contains("Eachtitle",string(varargin)) , title(ax(n,m),"Title",'interpreter','latex','FontSize',fontSize+6) ; end
             if contains("Eachsubtitle",string(varargin)) , subtitle(ax(n,m),"Subtitle",'interpreter','latex','FontSize',fontSize+2) ; end
