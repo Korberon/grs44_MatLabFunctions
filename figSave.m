@@ -5,8 +5,9 @@ function figSave(handle,fName)
 %  handle    : Figure handle reference eg. fg3 
 %  fName     : File name to save under 
 %% Outputs: (Saved in same directory)
-%  fName.png : 900 dpi .png 
+%  fName.png : 400 dpi .png 
 %  fName.fig : Compact .fig 
+%  fName.pdf : 400 dpi .pdf
 
 exportgraphics(handle,fName+".png",'Resolution',400) ; 
 savefig(handle,fName+".fig",'compact') ; 

@@ -20,10 +20,10 @@ y = zeros(3,length(t)) ; % Initialise state vector
 if ~exist('s','var') , s = 0.1*ones(size(t)) ; s(1:floor(length(t)/20)) = 0 ; end 
 
 for ti = 2 : length(t) 
-    y(3,ti) = -(K*(y(1,ti-1))+C*y(2,ti-1) - s(ti))/M ; 
+    y(3,ti) = -(K*y(1,ti-1)+C*y(2,ti-1) - s(ti))/M ; 
     y(2,ti) = y(2,ti-1) + (t(ti)-t(ti-1))*y(3,ti) ; 
     y(1,ti) = y(1,ti-1) + (t(ti)-t(ti-1))*y(2,ti) ; 
-end
+end 
 
 if plotMe == true 
     [fg,ax] = figGen('lg') ; xlabel("Time (s)") ; ylabel("Response") ;

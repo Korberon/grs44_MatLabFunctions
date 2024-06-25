@@ -38,9 +38,9 @@ fontSize = 15 ;
 fg = figure ; fg.Position = [(1920-1200)/2,(1080-600)/2,1200,600] ; 
 tl = tiledlayout(N,M) ;
 
+if contains("fontSize",string(varargin)) , [~,fontSizei] = find(string(varargin) == 'fontSize') ; fontSize = cell2mat(varargin(fontSizei+1)) ; end
 if contains("Title",string(varargin)) , title(tl,"Title",'interpreter','latex','FontSize',fontSize+6) ; end
 if contains("Subtitle",string(varargin)) , subtitle(tl,"Subtitle",'interpreter','latex','FontSize',fontSize+2) ; end
-if contains("fontSize",string(varargin)) , [~,fontSizei] = find(string(varargin) == 'fontSize') ; fontSize = cell2mat(varargin(fontSizei+1)) ; end
 if contains("lgTile",string(varargin)) , [~,lgi] = find(string(varargin) == 'lgTile') ; lgTile = cell2mat(varargin(lgi+1)) ; end
 if contains("debugging",string(varargin)) , debugging = true ; else , debugging = false ; end 
 if debugging == true , fg.Position = [-1919,39,1920,963] ; end 
@@ -65,7 +65,7 @@ for n = 1 : N
     for m = 1 : M 
         i = i + 1 ; 
         if i <= size(dicing,1) 
-            ax(n,m) = nexttile(dicing(i,:)) ; ax(n,m).Box = 'on' ; colororder(ax(n,m),'k') ; 
+            ax(n,m) = nexttile(dicing(i,:)) ; ax(n,m).Box = 'on' ; colororder(ax(n,m),'k') ; ax(n,m).FontSize = fontSize ; 
             if contains("Eachtitle",string(varargin)) , title(ax(n,m),"Title",'interpreter','latex','FontSize',fontSize+6) ; end
             if contains("Eachsubtitle",string(varargin)) , subtitle(ax(n,m),"Subtitle",'interpreter','latex','FontSize',fontSize+2) ; end
             hold all ; ax(n,m).LineWidth = 2 ; grid on ;  if version('-release') == "2023b" , ax(n,m).GridLineWidth = 1 ; end ; grid('minor') ;
@@ -79,7 +79,7 @@ for n = 1 : N
     end
 end 
 if contains('lg',string(varargin)) , k = k + 1 ;  
-    if exist('lgTile')
+    if exist('lgTile','var')
         lg = legend(ax(lgTile),'Orientation','horizontal','Location','southoutside','interpreter','latex','FontSize',fontSize) ; lg.Layout.Tile = 'South' ;
     else
         lg = legend('Orientation','horizontal','Location','southoutside','interpreter','latex','FontSize',fontSize) ; lg.Layout.Tile = 'South' ;

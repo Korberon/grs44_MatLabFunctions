@@ -12,6 +12,7 @@ function [fg,ax,varargout] = figGen(varargin)
 %  'cbType'   : Changes the default colorbar format
 %   - cbType  : Equation to change the colorbar format to, eg. '1-cool'
 %  'cbRev'    : Reverses the colorbar order
+%  'square'   : Makes a square figure
 %% Outputs + Order:
 %  'fg'       : Figure object
 %  'ax'       : Axes object
@@ -52,7 +53,11 @@ end
 if ~exist('fontSize',"var") , fontSize = 15 ; end
 % if ~exist('cbType','var') , cbType = 'hsv' ; end
 
-fg = figure ; fg.Position = [1920/2,1080/2,1200,600] ; fg.Position(1:2) =  fg.Position(1:2)-fg.Position(3:4)/2 ; ax = axes ; colororder('k') ; ax.Box = 'on' ; 
+fg = figure ; fg.Position = [1920/2,1080/2,1200,600] ; 
+if contains("square",string(varargin)) , fg.Position(3) = fg.Position(4) ; end 
+fg.Position(1:2) =  fg.Position(1:2)-fg.Position(3:4)/2 ; ax = axes ; colororder('k') ; ax.Box = 'on' ; 
+screenSize = sortrows(get(0,'MonitorPositions'), 1) ; fg.Position(1) = screenSize(end,1)+screenSize(end,3)/2 - fg.Position(3)/2 ; 
+
 if contains("Title",string(varargin)) 
     title(ax,"Title",'interpreter','latex','FontSize',fontSize+6) ; 
     ax.Position(4) = ax.Position(4)-0.04 ; 
@@ -65,6 +70,7 @@ end
 hold all ; ax.LineWidth = 2 ; grid on ; grid('minor') ;  if version('-release') == "2023b" , ax.GridLineWidth = 1 ; end
 ax.XAxis.FontSize = fontSize ; ax.YAxis.FontSize = fontSize ; ax.ZAxis.FontSize = fontSize ; ax.TickLabelInterpreter = 'latex' ;
 xlabel('x','interpreter','latex','FontSize',fontSize+2) ; ylabel('y','interpreter','latex','FontSize',fontSize+2) ; zlabel('z','interpreter','latex','FontSize',fontSize+2) ; 
+set(0,"DefaultLineLineWidth",2) ; 
 
 if contains('lg',string(varargin)) , k = k + 1 ;  
     lg = legend(ax,'interpreter','latex','Orientation','Horizontal','Location','southoutside','FontSize',fontSize) ; 
