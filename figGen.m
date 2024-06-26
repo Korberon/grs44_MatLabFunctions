@@ -84,7 +84,9 @@ if contains('ColorBar',string(varargin)) ,  k = k + 1 ;
     if exist('cbType','var') 
         colList = eval(cbType+"(N)") ;
     else 
-        colList = cmapGen(N) ; 
+        try colList = cmapGen(N) ; 
+        catch , colList = 1-summer(N) ; disp("No cmapGen.m found, defaulting to 1-Summer. To change this, use 'cbType'") ; 
+        end
     end 
     if max(contains(string(varargin),"cbRev")) , colList = colList(end:-1:1,:) ; end 
     colormap(colList) ; 
