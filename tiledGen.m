@@ -33,9 +33,11 @@ function [fg,tl,ax,varargout] = tiledGen(N,M,dicing,varargin)
 if nargin == 0 , N = 2 ; M = 2 ; end 
 if nargin == 2 , dicing = ones(N*M,2) ; end 
 if size(dicing) == 0 , dicing = ones(N*M,2) ; end 
-fontSize = 15 ; 
+fontSize = 18 ; 
 
-fg = figure ; fg.Position = [(1920-1200)/2,(1080-600)/2,1200,600] ; 
+% fg = figure ; fg.Position = [(1920-1200)/2,(1080-600)/2,1200,600] ; % Old Default
+fg = figure ; fg.Position = [(1920-1200)/2,(1080-600)/2,720,540] ; % Dual Column Paper 
+figPlace(fg,'M') ; 
 tl = tiledlayout(N,M) ;
 
 if contains("fontSize",string(varargin)) , [~,fontSizei] = find(string(varargin) == 'fontSize') ; fontSize = cell2mat(varargin(fontSizei+1)) ; end
@@ -43,7 +45,6 @@ if contains("Title",string(varargin)) , title(tl,"Title",'interpreter','latex','
 if contains("Subtitle",string(varargin)) , subtitle(tl,"Subtitle",'interpreter','latex','FontSize',fontSize+2) ; end
 if contains("lgTile",string(varargin)) , [~,lgi] = find(string(varargin) == 'lgTile') ; lgTile = cell2mat(varargin(lgi+1)) ; end
 if contains("debugging",string(varargin)) , debugging = true ; else , debugging = false ; end 
-if debugging == true , fg.Position = [-1919,39,1920,963] ; end 
 
 for i = 1 : nargin -3
     if string(varargin(i)) == "ColorBar"
@@ -68,12 +69,12 @@ for n = 1 : N
             ax(n,m) = nexttile(dicing(i,:)) ; ax(n,m).Box = 'on' ; colororder(ax(n,m),'k') ; ax(n,m).FontSize = fontSize ; 
             if contains("Eachtitle",string(varargin)) , title(ax(n,m),"Title",'interpreter','latex','FontSize',fontSize+6) ; end
             if contains("Eachsubtitle",string(varargin)) , subtitle(ax(n,m),"Subtitle",'interpreter','latex','FontSize',fontSize+2) ; end
-            hold all ; ax(n,m).LineWidth = 2 ; grid on ;  if version('-release') == "2023b" , ax(n,m).GridLineWidth = 1 ; end ; grid('minor') ;
+            hold all ; ax(n,m).LineWidth = 2 ; grid on ; grid('minor') ; if any(version('-release') == ["2023b","2024a","2024b"]) , ax(n,m).GridLineWidth = 1 ; end 
             xlabel('x','interpreter','latex','FontSize',fontSize+2) ; ylabel('y','interpreter','latex','FontSize',fontSize+2) ; zlabel('z','interpreter','latex','FontSize',fontSize+2) ; 
             if debugging == true 
                 ax(n,m).XLabel.String = "" ; ax(n,m).YLabel.String = "" ; ax(n,m).ZLabel.String = "" ; 
             end 
-            ax(n,m).TickLabelInterpreter = 'latex' ; ax(n,m).XAxis.FontSize = fontSize+2 ; ax(n,m).YAxis.FontSize = fontSize+2 ;
+            ax(n,m).TickLabelInterpreter = 'latex' ; ax(n,m).XAxis.FontSize = fontSize ; ax(n,m).YAxis.FontSize = fontSize ; 
             colormap(cmapGen(100)) ; 
         end 
     end
@@ -99,3 +100,16 @@ if contains('ColorBar',string(varargin)) ,  k = k + 1 ;
     cBar.Position(3) = cBar.Position(3)-0.005 ; cBar.Position(4) = ax(1).Position(2)+ax(1).Position(4)- ax(end).Position(2) ; 
     varargout{k} = cBar ;
 end
+set(0,"DefaultLineLineWidth",2) ; 
+
+iBad = [] ; 
+for i = 1 : size(ax,1)*size(ax,2)
+    try ax(i).XLim ; catch iBad = [iBad,i] ; end 
+end 
+logicalIndices = true(size(ax,1)*size(ax,2),1) ; 
+logicalIndices(iBad) = false ; 
+ax = ax(logicalIndices) ; 
+for i = 1 : length(ax) , ax(i).XLabel.String = i ; end 
+
+
+end 
