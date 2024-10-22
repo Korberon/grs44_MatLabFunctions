@@ -43,6 +43,7 @@ function figPlace(fg,direction)
         screenIndex = size(screenSize,1) ; 
     elseif contains(direction,"M") 
         screenIndex = 2 ; 
+        if size(screenSize,1) == 1 , screenIndex = 1 ; end 
     end 
     fg.Position(1) = screenSize(screenIndex,1)+screenSize(screenIndex,3)/2-fg.Position(3)/2 ; 
     fg.Position(2) = screenSize(screenIndex,2)+screenSize(screenIndex,4)/2-fg.Position(4)/2 ; 

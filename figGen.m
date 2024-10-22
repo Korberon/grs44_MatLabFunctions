@@ -50,37 +50,48 @@ end
 %         end
 %     end
 % end
-if ~exist('fontSize',"var") , fontSize = 15 ; end
-% if ~exist('cbType','var') , cbType = 'hsv' ; end
+% if ~exist('fontSize',"var") , fontSize = 14 ; end % Old Default
+if ~exist('fontSize',"var") , fontSize = 18 ; end % Dual Column
+% if ~exist('cbType','var') , cbType = 'hsv' ; end 
 
-fg = figure ; fg.Position = [1920/2,1080/2,1200,600] ; 
+% fg = figure ; fg.Position = [1920/2,1080/2,1200,600] ; % Old Default 
+fg = figure ; fg.Position = [1920/2,1080/2,720,480] ; % Dual Column Paper 
+% fg = figure ; fg.Position = [1920/2,1080/2,720,540] ; % Dual Column Paper - Tall 
+% fg = figure ; fg.Position = [1920/2,1080/2,720,360] ; % Dual Column Paper - Wide 
+
 if contains("square",string(varargin)) , fg.Position(3) = fg.Position(4) ; end 
 fg.Position(1:2) =  fg.Position(1:2)-fg.Position(3:4)/2 ; ax = axes ; colororder('k') ; ax.Box = 'on' ; 
 screenSize = sortrows(get(0,'MonitorPositions'), 1) ; fg.Position(1) = screenSize(end,1)+screenSize(end,3)/2 - fg.Position(3)/2 ; 
 
 if contains("Title",string(varargin)) 
     title(ax,"Title",'interpreter','latex','FontSize',fontSize+6) ; 
-    ax.Position(4) = ax.Position(4)-0.04 ; 
+%     ax.Position(4) = ax.Position(4) ; % Old Default
+    ax.Position(4) = ax.Position(4)-0.08 ; 
+    ax.Position(2) = ax.Position(2)+0.06 ; 
 end 
 
 if contains("Subtitle",string(varargin)) 
     subtitle(ax,"Subtitle",'interpreter','latex','FontSize',fontSize+2) ; 
 end
 
-hold all ; ax.LineWidth = 2 ; grid on ; grid('minor') ;  if version('-release') == "2023b" , ax.GridLineWidth = 1 ; end
-ax.XAxis.FontSize = fontSize ; ax.YAxis.FontSize = fontSize ; ax.ZAxis.FontSize = fontSize ; ax.TickLabelInterpreter = 'latex' ;
-xlabel('x','interpreter','latex','FontSize',fontSize+2) ; ylabel('y','interpreter','latex','FontSize',fontSize+2) ; zlabel('z','interpreter','latex','FontSize',fontSize+2) ; 
+hold on ; ax.LineWidth = 2 ; grid on ; grid('minor') ;  if any(version('-release') == ["2023b","2024a","2024b"]) , ax.GridLineWidth = 1 ; end
+ax.FontSize = fontSize ; ax.XAxis.FontSize = fontSize ; ax.YAxis.FontSize = fontSize ; ax.ZAxis.FontSize = fontSize ; ax.TickLabelInterpreter = 'latex' ;
+xlabel('x','interpreter','latex','FontSize',fontSize+2,'Color','k') ; ylabel('y','interpreter','latex','FontSize',fontSize+2) ; zlabel('z','interpreter','latex','FontSize',fontSize+2) ; 
 set(0,"DefaultLineLineWidth",2) ; 
 
 if contains('lg',string(varargin)) , k = k + 1 ;  
-    lg = legend(ax,'interpreter','latex','Orientation','Horizontal','Location','southoutside','FontSize',fontSize) ; 
-    lg.Position(2) = 0.02 ; ax.Position(2) = lg.Position(2)+lg.Position(4)+0.1 ; ax.Position(4) = ax.Position(4)-0.025  ;
+    lg = legend(ax,'interpreter','latex','Orientation','Horizontal','Location','southoutside','FontSize',fontSize-2,'TextColor','k') ; 
+    lg.Position(2) = 0.02 ; 
+%     ax.Position(2) = lg.Position(2)+lg.Position(4)+0.1 ; ax.Position(4) = ax.Position(4)  ; % Old Default
+    ax.Position(2) = lg.Position(2)+lg.Position(4)+0.19 ; ax.Position(4) = ax.Position(4)-0.1  ; % Dual Column
     varargout{k} = lg ;
 end
-colormap(cmapGen(100)) ; 
+cmapList = cmapGen(100) ; 
+colormap(cmapList(end:-1:1,:)) ; 
 
 if contains('ColorBar',string(varargin)) ,  k = k + 1 ;
-    ax.Position([1,3]) = [0.1,0.8] ; 
+    % ax.Position([1,3]) = [0.1,0.8] ; 
+%     ax.Position(3) = 0.8 ; % Old Default
     if exist('cbType','var') 
         colList = eval(cbType+"(N)") ;
     else 
@@ -91,6 +102,8 @@ if contains('ColorBar',string(varargin)) ,  k = k + 1 ;
     if max(contains(string(varargin),"cbRev")) , colList = colList(end:-1:1,:) ; end 
     colormap(colList) ; 
     cBar = colorbar(ax,'eastoutside','Ticks',linspace(0,1,N+1),'TickLabels',["","Label "+string(1:N)],'TickLabelInterpreter','latex','FontSize',12) ;
-    cBar.Position(3) = cBar.Position(3)-0.005 ; cBar.Position(1) = ax.Position(1)+ax.Position(3)+0.07 ;
+%     cBar.Position(3) = cBar.Position(3)-0.005 ; cBar.Position(1) = ax.Position(1)+ax.Position(3)+0.02 ; % Old Default
+    % cBar.Position(3) = cBar.Position(3)-0.005 ; cBar.Position(1) = ax.Position(1)+ax.Position(3)+0.1 ; % Dual Column
+    ax.Position(3) = 0.725 ; % Dual Paper
     varargout{k} = cBar ;
 end

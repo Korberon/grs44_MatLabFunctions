@@ -12,3 +12,4 @@ function figSave(handle,fName)
 exportgraphics(handle,fName+".png",'Resolution',400) ; 
 savefig(handle,fName+".fig",'compact') ; 
 exportgraphics(handle,fName+".pdf",'Resolution',400) ; 
+exportgraphics(handle,fName+".tif") ; 
