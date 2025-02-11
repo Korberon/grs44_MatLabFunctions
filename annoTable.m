@@ -1,26 +1,29 @@
 function varargout = annoTable(fg,xywh,nRows,nCols,varargin)
 %% annoTable.m 
-% Creates a table of data to annotate a figure
-%% Inputs   :
-% fg        : Figure Object
-% xywh      : Position (relative to tile)
-% nRows     : Number of Rows in Table
-% nCols     : Number of Cols in Table
+%   Creates a table of data to annotate a figure
+%% Inputs       :
+%   fg          : Figure Object
+%   xywh        : Position (relative to tile)
+%   nRows       : Number of Rows in Table
+%   nCols       : Number of Cols in Table
 %% Outputs  :
-% an        : Annotation object [nRows,nCols]
-% tx        : Text object       [nRows,nCols]   : Only if Square is True
+%   an      : Annotation object [nRows,nCols]
+%   tx      : Text object       [nRows,nCols]   : Only if Square is True
+%
 %% Optional Inputs  :
-% 'Corner'=["tl","tr","bl","br"]    : Which corner of the axes object to snap to
-% 'Square'=true/false   : Whether to add squares into each table box
-% 'Tile'=n  : Which tile (of a tiled layout) to target for 'Corner'
-% 'Free'=true/false : Whether the annoTable is free or fixed (whether it snaps to a corner, or its position is absolue to the figure)
-%% Example Code:
-% annoTable() ; 
-% fg = figure ; annoTable(fg,[0,0,0.2,0.1]) ; 
-% fg = figure ; ax = axes ; [an,tx] = annoTable(fg,[0,0,0.35,0.3],3,1) ; an(1).BackgroundColor = 'none' ; an(1).Color = 'k' ; an(1).String = "M" ; tx(1).String = "1 kg" ; an(2).BackgroundColor = 'none' ; an(2).Color = 'k' ; an(2).String = "C" ; tx(2).String = "2 N s m$^{-1}$" ; an(3).BackgroundColor = 'none' ; an(3).Color = 'k' ; an(3).String = "K" ; tx(3).String = "1.6 kN m$^{-1}$" ;
-% fg = figure ; ax = axes ; [an,tx] = annoTable(fg,[0.3,0.2,0.35,0.3],3,1,'Free',true) ; an(1).BackgroundColor = 'none' ; an(1).Color = 'k' ; an(1).String = "M" ; tx(1).String = "1 kg" ; an(2).BackgroundColor = 'none' ; an(2).Color = 'k' ; an(2).String = "C" ; tx(2).String = "2 N s m$^{-1}$" ; an(3).BackgroundColor = 'none' ; an(3).Color = 'k' ; an(3).String = "K" ; tx(3).String = "1.6 kN m$^{-1}$" ;
-% fg = figure ; ax = axes ; [tx] = annoTable(fg,[0.3,0.2,0.25,0.3],3,1,'Square',false) ; tx(1).String = "1 kg" ; tx(2).String = "2 N s m$^{-1}$" ; tx(3).String = "1.6 kN m$^{-1}$" ;
-% fg = figure ; ax = axes ; [tx] = annoTable(fg,[0.3,0.2,0.25,0.3],3,1,'Square',false,'Corner','bl') ; tx(1).String = "1 kg" ; tx(2).String = "2 N s m$^{-1}$" ; tx(3).String = "1.6 kN m$^{-1}$" ;
+%   'Corner'=["tl","tr","bl","br"]    : Which corner of the axes object to snap to
+%   'Square'=true/false   : Whether to add squares into each table box
+%   'Tile'=n  : Which tile (of a tiled layout) to target for 'Corner'
+%   'Free'=true/false : Whether the annoTable is free or fixed (whether it snaps to a corner, or its position is absolue to the figure)
+%% Example Code :
+%   annoTable() ; 
+%   fg = figure ; annoTable(fg,[0,0,0.2,0.1]) ; 
+%   fg = figure ; ax = axes ; [an,tx] = annoTable(fg,[0,0,0.35,0.3],3,1) ; an(1).BackgroundColor = 'none' ; an(1).Color = 'k' ; an(1).String = "M" ; tx(1).String = "1 kg" ; an(2).BackgroundColor = 'none' ; an(2).Color = 'k' ; an(2).String = "C" ; tx(2).String = "2 N s m$^{-1}$" ; an(3).BackgroundColor = 'none' ; an(3).Color = 'k' ; an(3).String = "K" ; tx(3).String = "1.6 kN m$^{-1}$" ;
+%   fg = figure ; ax = axes ; [an,tx] = annoTable(fg,[0.3,0.2,0.35,0.3],3,1,'Free',true) ; an(1).BackgroundColor = 'none' ; an(1).Color = 'k' ; an(1).String = "M" ; tx(1).String = "1 kg" ; an(2).BackgroundColor = 'none' ; an(2).Color = 'k' ; an(2).String = "C" ; tx(2).String = "2 N s m$^{-1}$" ; an(3).BackgroundColor = 'none' ; an(3).Color = 'k' ; an(3).String = "K" ; tx(3).String = "1.6 kN m$^{-1}$" ;
+%   fg = figure ; ax = axes ; [tx] = annoTable(fg,[0.3,0.2,0.25,0.3],3,1,'Square',false) ; tx(1).String = "1 kg" ; tx(2).String = "2 N s m$^{-1}$" ; tx(3).String = "1.6 kN m$^{-1}$" ;
+%   fg = figure ; ax = axes ; [tx] = annoTable(fg,[0.3,0.2,0.25,0.3],3,1,'Square',false,'Corner','bl') ; tx(1).String = "1 kg" ; tx(2).String = "2 N s m$^{-1}$" ; tx(3).String = "1.6 kN m$^{-1}$" ;
+%
+%% Created by George R. Smith - grs44@bath.ac.uk 
 
 %% Input Handling
 p = inputParser() ; 
