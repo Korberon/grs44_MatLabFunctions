@@ -8,6 +8,8 @@ function [varargout] = thouAxes(ax,varargin)
 %% Optional Inputs : 
 %   'LeftUnits'   =   ["mm","m"]      : Either mm or m, used for conversion into the imperial units
 %   'RightUnits'  =   ["in","thou"]   : Either in or thou, used for conversion into imperial units
+%
+%% Created by George R. Smith - grs44@bath.ac.uk 
 
 %% Input Handling
 p = inputParser() ; 
