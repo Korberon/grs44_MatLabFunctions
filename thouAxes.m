@@ -1,15 +1,22 @@
-function [varargout] = thouAxes(fg,ax,varargin)
+function [varargout] = thouAxes(ax,varargin)
+%% thouAxes.m
+%   Function to generate right-hand axes, matching the left-hand axes, in thou / in from mm / m (default, converts mm into thou)
+%   Run with no inputs to generate an example plot
+%% Inputs : 
+%   fg : Figure Object
+%   ax : Axes Object
+%% Optional Inputs : 
+%   'LeftUnits'   =   ["mm","m"]      : Either mm or m, used for conversion into the imperial units
+%   'RightUnits'  =   ["in","thou"]   : Either in or thou, used for conversion into imperial units
 
-%% Optional Inputs
+%% Input Handling
 p = inputParser() ; 
 addParameter(p,"LeftUnits","mm") ; acceptableUnitsLeft = ["mm","m"] ; 
 addParameter(p,"RightUnits","thou") ; acceptableUnitsRight = ["in","thou"] ; 
 parse(p,varargin{:}) ; 
-unitsLeft = p.Results.LeftUnits ; assert(max(unitsLeft==acceptableUnitsLeft),"Acceptable Units Left: "+acceptableUnitsLeft) ; 
-unitsRight = p.Results.RightUnits ; assert(max(unitsRight==acceptableUnitsRight),"Acceptable Units Right: "+acceptableUnitsRight) ; 
-
-%% Units
-
+unitsLeft = string(p.Results.LeftUnits) ; assert(max(unitsLeft==acceptableUnitsLeft),"Acceptable Units Left: "+acceptableUnitsLeft) ; 
+unitsRight = string(p.Results.RightUnits) ; assert(max(unitsRight==acceptableUnitsRight),"Acceptable Units Right: "+acceptableUnitsRight) ; 
+% Units
 switch unitsLeft
     case "mm" , factor = 1 ; 
     case "m" , factor = 1000 ; 
@@ -33,10 +40,8 @@ if nargin == 0
     ax.YColor = 'k';
 end
 
-
-
 %% Create and Adjust Right Axes
-axRight = axes('Position',ax.Position,'XAxisLocation','bottom','YAxisLocation','right','Color','none') ; 
+axRight = axes('Position',ax.Position,'XAxisLocation','bottom','YAxisLocation','right','Color','none','Parent',ax.Parent.Parent) ; 
 axRight.XColor = 'none' ; 
 axRight.YColor = ax.YColor ; 
 
@@ -52,9 +57,8 @@ axRight.PickableParts = 'none' ;
 set(gcf,'CurrentAxes',ax) ; 
 
 if nargout > 0
-    varargout{1} = fg ; 
+    varargout{1} = axRight ; 
     varargout{2} = ax ; 
-    varargout{3} = axRight ; 
 end
 
 end
