@@ -1,10 +1,12 @@
 function ax = makeLatex(ax)
 %% makeLatex.m
-% Function to correct any set of axes to the appropriate LaTeX format and outlines
+%   Function to correct any set of axes to the appropriate LaTeX format and outlines
 %% Inputs: 
-% ax    : Set of axes to correct
+%   ax    : Set of axes to correct
 %% Outputs: 
-% ax    : Corrected set of axes
+%   ax    : Corrected set of axes
+%
+%% Created by George R. Smith - grs44@bath.ac.uk 
 
 fontSize = 15 ; 
 hold all ; ax.LineWidth = 2 ; grid on ; grid('minor') ;  if version('-release') == "2023b" , ax.GridLineWidth = 1 ; end

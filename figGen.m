@@ -1,109 +1,123 @@
-function [fg,ax,varargout] = figGen(varargin)
+function [fg,ax,lg,varargout] = figGen(varargin)
 %% figGen.m
-% Generate a generic figure to create consistent plots
-%% Optional Inputs:
-%  'lg'       : Creates and displays the legend. This changes the way the axes fits in the figure
-%  'FontSize' : Changes the relative font sizes for the figure (default 12)
-%   - fontSize
-%  'Title'    : Creates title and rearranges the axes
-%  'Subtitle' : Creates subtitle and rearranges the axes
-%  'ColorBar' : Creates a colorbar (default using hsv).
-%   - N       : Number of colours in the colorbar
-%  'cbType'   : Changes the default colorbar format
-%   - cbType  : Equation to change the colorbar format to, eg. '1-cool'
-%  'cbRev'    : Reverses the colorbar order
-%  'square'   : Makes a square figure
-%% Outputs + Order:
-%  'fg'       : Figure object
-%  'ax'       : Axes object
-%  'lg'       : Legend object
-%  'cBar'     : Colorbar Object
+%   Figure Generator, with many optional inputs. Made to work with all other files in my directory! MUST have!
+%% Inputs   :
+%   None
+%% Outputs  :
+%   fg      : Figure object
+%   ax      : Axes object
+%   lg      : Legend object
+%
+%% Optional Inputs          :
+%   'Title'=true/false      : Create a title object for the axes
+%   'Subtitle'=true/false   : Create a subtitle object for the axes
+%   'lg'=true/false         : Create a legend for the axes
+%   'Place'=figPlace.m      : Places the axes in the position (see figPlace.m)
+%   'fig3D'=true/false      : Generate the figure and set up the angle to be in 3D (Replaces the old fig3D.m)
+%   'FontSize'=u            : General font size for the axes object (all text scales relative to this!)
+%   'Square'=true/false     : The axes are square
+%   'ColorBar'=u/false      : Generates a ColorBar with the specified input (either false or N)
+%   'cbType'=colorMap       : Sets the colourmap of the Colorbar object (eg. "winter","summer","1-summer" etc.)
+%   'cbRev'=true/false      : Reverses the cbType
+%% Optional Outputs :
+%   cBar            : Colorbar Object
+%   dbgObject       : The debugging object (containing all relevant data)
+%
+%% Created by George R. Smith - grs44@bath.ac.uk 
 
-%% Example Code: 
-% To use figGen(), here are some example codes: 
-% [fg,ax] = figGen() ; % Generic Set of Axes on a Figure 
-% [fg,ax,lg] = figGen('lg') ; % Generic + Empty Legend (use 'DisplayName' in plots / scatters) 
-% [fg,ax] = figGen('Title') ; % Generic + Title 
-% [fg,ax,lg] = figGen('Title','lg') ; % Generic + Empty Legend + Title 
-% [fg,ax,cb] = figGen('ColorBar',6) ; % Generic + Colourbar 
-% [fg,ax,cb] = figGen('ColorBar',6,'cbRev','cbType','1-cool') ; % Generic + More complicated colourbar, which has colours equal to 1-cool, in reverse order 
-% [fg,ax,lg,cb] = figGen('ColorBar',6,'lg') ; % Generic + Colourbar + Legend 
+%% Input Handling
+p = inputParser() ; 
+% Figure
+addParameter(p,'Title',false) ; 
+addParameter(p,'Subtitle',false) ; 
+addParameter(p,'lg',false) ; 
+addParameter(p,'Place','R') ; 
+addParameter(p,'fig3D',false) ; 
+% Specifics
+addParameter(p,'FontSize',18) ; 
+addParameter(p,'Square',false) ; 
+% Colorbar
+addParameter(p,'ColorBar',false) ; 
+addParameter(p,'cbType','cmapGen2') ; 
+addParameter(p,'cbRev',false) ; 
 
-k = 0 ;
-for i = 1 : nargin
-    if string(varargin(i)) == "FontSize"
-        if i+1 > nargin , error("No Font Size argument") ; end 
-        fontSize = str2double(string(varargin(i+1))) ; 
-        i = i + 1 ;
-    end
-    if string(varargin(i)) == "ColorBar"
-        if i+1 > nargin , error("No N argument") ; end
-        N = str2double(string(varargin(i+1))) ;
-        i = i + 1 ;
-    end
-    if string(varargin(i)) == "cbType"
-        if i+1 > nargin , error("No cbType argument") ; end
-        cbType = string(varargin(i+1)) ;
-        i = i + 1 ;
-    end
+parse(p,varargin{:}) ; 
+% Figure
+titleBool = p.Results.Title ; 
+subtitleBool = p.Results.Subtitle ; 
+lgBool = p.Results.lg ; 
+placeLocation = p.Results.Place ; 
+f3Dbool = p.Results.fig3D ; 
+% Specifics
+fontSize = p.Results.FontSize ; 
+squareBool = p.Results.Square ; 
+% Colorbar
+cbBool = p.Results.ColorBar ; 
+if cbBool == true , cbN = 100 ; elseif max(cbBool == false) , cbBool = false ; else , cbBool = true ; cbN = p.Results.ColorBar ; end
+cbType = p.Results.cbType ; 
+cbRevBool = p.Results.cbRev ; 
+
+varargout{1} = p.Results ; 
+
+%% Create Figure
+fg = figure ; 
+fg.Position([3,4]) = standardRes("WVGA") ; % Dual Column Paper
+if squareBool , fg.Position([3,4]) = standardRes("SQFHD")/4 ; end
+figPlace(fg,placeLocation) ; % Place it centrally on the RH Monitor
+fg.Theme = 'light' ; % If using New Desktop
+
+%% Axes
+ax = axes ; 
+colororder('k') ; % Only plot in black by default
+ax.Box = 'on' ; 
+ax.FontSize = fontSize ; ax.XAxis.FontSize = fontSize ; ax.YAxis.FontSize = fontSize ; ax.ZAxis.FontSize = fontSize ; 
+hold on ; ax.LineWidth = 2 ; grid on ; grid('minor') ; 
+if any(version('-release')==["2023b","2024a","2024b"]) , ax.GridLineWidth = 1 ; end
+xlabel("x",'FontSize',fontSize+2,'Color','k') ; ylabel("y",'FontSize',fontSize+2,'Color','k') ; zlabel("z",'FontSize',fontSize+2,'Color','k') ; 
+
+%% Legend
+if lgBool 
+    lg = legend('Orientation','Horizontal','Location','southoutside','FontSize',fontSize-2,'TextColor','k') ; 
+    ax.Units = 'normalized' ; 
+    ax.Position(2) = ax.Position(2)-0.1 ; ax.Position(4) = ax.Position(4)+0.1 ; 
+else , lg = [] ; end
+
+%% Extras
+if titleBool 
+    title(ax,"Title",'FontSize',fontSize+6) ; 
+    ax.Position(4) = ax.Position(4)-0.08 ; ax.Position(2) = ax.Position(2)+0.06 ; 
+    if lgBool , ax.Position(2) = ax.Position(2)-0.06 ; end
 end
-%         end
-%     end
-% end
-% if ~exist('fontSize',"var") , fontSize = 14 ; end % Old Default
-if ~exist('fontSize',"var") , fontSize = 18 ; end % Dual Column
-% if ~exist('cbType','var') , cbType = 'hsv' ; end 
-
-% fg = figure ; fg.Position = [1920/2,1080/2,1200,600] ; % Old Default 
-fg = figure ; fg.Position = [1920/2,1080/2,720,480] ; % Dual Column Paper 
-% fg = figure ; fg.Position = [1920/2,1080/2,720,540] ; % Dual Column Paper - Tall 
-% fg = figure ; fg.Position = [1920/2,1080/2,720,360] ; % Dual Column Paper - Wide 
-
-if contains("square",string(varargin)) , fg.Position(3) = fg.Position(4) ; end 
-fg.Position(1:2) =  fg.Position(1:2)-fg.Position(3:4)/2 ; ax = axes ; colororder('k') ; ax.Box = 'on' ; 
-screenSize = sortrows(get(0,'MonitorPositions'), 1) ; fg.Position(1) = screenSize(end,1)+screenSize(end,3)/2 - fg.Position(3)/2 ; 
-
-if contains("Title",string(varargin)) 
-    title(ax,"Title",'interpreter','latex','FontSize',fontSize+6) ; 
-%     ax.Position(4) = ax.Position(4) ; % Old Default
-    ax.Position(4) = ax.Position(4)-0.08 ; 
-    ax.Position(2) = ax.Position(2)+0.06 ; 
-end 
-
-if contains("Subtitle",string(varargin)) 
-    subtitle(ax,"Subtitle",'interpreter','latex','FontSize',fontSize+2) ; 
+if subtitleBool 
+    subtitle(ax,"Subtitle",'FontSize',fontSize+2) ; 
+    ax.Position(4) = ax.Position(4)-0.04 ; 
+    if titleBool , ax.Position(4) = ax.Position(4)-0.01 ; end
 end
 
-hold on ; ax.LineWidth = 2 ; grid on ; grid('minor') ;  if any(version('-release') == ["2023b","2024a","2024b"]) , ax.GridLineWidth = 1 ; end
-ax.FontSize = fontSize ; ax.XAxis.FontSize = fontSize ; ax.YAxis.FontSize = fontSize ; ax.ZAxis.FontSize = fontSize ; ax.TickLabelInterpreter = 'latex' ;
-xlabel('x','interpreter','latex','FontSize',fontSize+2,'Color','k') ; ylabel('y','interpreter','latex','FontSize',fontSize+2) ; zlabel('z','interpreter','latex','FontSize',fontSize+2) ; 
-set(0,"DefaultLineLineWidth",2) ; 
-
-if contains('lg',string(varargin)) , k = k + 1 ;  
-    lg = legend(ax,'interpreter','latex','Orientation','Horizontal','Location','southoutside','FontSize',fontSize-2,'TextColor','k') ; 
-    lg.Position(2) = 0.02 ; 
-%     ax.Position(2) = lg.Position(2)+lg.Position(4)+0.1 ; ax.Position(4) = ax.Position(4)  ; % Old Default
-    ax.Position(2) = lg.Position(2)+lg.Position(4)+0.19 ; ax.Position(4) = ax.Position(4)-0.1  ; % Dual Column
-    varargout{k} = lg ;
-end
-cmapList = cmapGen(100) ; 
-colormap(cmapList(end:-1:1,:)) ; 
-
-if contains('ColorBar',string(varargin)) ,  k = k + 1 ;
-    % ax.Position([1,3]) = [0.1,0.8] ; 
-%     ax.Position(3) = 0.8 ; % Old Default
-    if exist('cbType','var') 
-        colList = eval(cbType+"(N)") ;
-    else 
-        try colList = cmapGen(N) ; 
-        catch , colList = 1-summer(N) ; disp("No cmapGen.m found, defaulting to 1-Summer. To change this, use 'cbType'") ; 
+%% ColorBar
+if cbBool
+    colList = eval(cbType+"(cbN)") ; if cbRevBool , colList = colList(end:-1:1,:) ; end , colormap(colList) ; 
+    colorBar = colorbar(ax,"eastoutside",'Ticks',linspace(0,1,cbN+1),'TickLabelInterpreter','latex','FontSize',fontSize-4) ; 
+    ax.Position(1) = ax.Position(1)-0.025 ; ax.Position(3) = ax.Position(3)-0.04 ; 
+    if cbN < 25
+        colorBar.TickLabels(1) = {""} ; 
+        for i = 2 : length(colorBar.TickLabels)
+            colorBar.TickLabels(i) = {"u"+(i-1)} ; 
         end
-    end 
-    if max(contains(string(varargin),"cbRev")) , colList = colList(end:-1:1,:) ; end 
-    colormap(colList) ; 
-    cBar = colorbar(ax,'eastoutside','Ticks',linspace(0,1,N+1),'TickLabels',["","Label "+string(1:N)],'TickLabelInterpreter','latex','FontSize',12) ;
-%     cBar.Position(3) = cBar.Position(3)-0.005 ; cBar.Position(1) = ax.Position(1)+ax.Position(3)+0.02 ; % Old Default
-    % cBar.Position(3) = cBar.Position(3)-0.005 ; cBar.Position(1) = ax.Position(1)+ax.Position(3)+0.1 ; % Dual Column
-    ax.Position(3) = 0.725 ; % Dual Paper
-    varargout{k} = cBar ;
+    else
+        for i = 1 : length(colorBar.TickLabels)
+            colorBar.TickLabels(i) = {""} ; 
+        end
+    end
+    varargout{1}.cBar = colorBar ; 
+    if squareBool , ax.Position(3) = ax.Position(3)-0.1 ; ax.Position(1) = ax.Position(1)+0.05 ; end
+end
+
+%% 3D
+if f3Dbool
+    view(45,(180*asin(1/sqrt(3)))/pi) ; 
+    ax.Position(2) = ax.Position(2)-0.02 ; 
+    ax.Position(4) = ax.Position(4)+0.025 ;
+end
+
 end

@@ -1,115 +1,163 @@
-function [fg,tl,ax,varargout] = tiledGen(N,M,dicing,varargin)
+function [fg,tl,ax,lg,varargout] = tiledGen(N,M,varargin) 
 %% tiledGen.m
-% Create and format a generic tiled layout easily
-%% Inputs           : 
-% N                 : Number of rows
-% M                 : Number of columns
-% dicing            : How the rows and columns are divided, in order of nexttile() ; 
-%% Optional Inputs  : 
-% 'Title'           : Adds a title to the whole figure
-% 'Subtitle'        : Adds a subtitle to the whole figure
-% 'Eachtitle'       : Adds a title to each set of axes
-% 'Eachsubtitle'    : Adds a subtitle to each set of axes
-% 'fontSize' + sz   : Determines fontSize
-% 'lg'              : Adds a legend at the south centre, targetting the final set of axes
-% 'lgTile' + lgi    : Determines which tile the legend will target 
-%% Outputs          :
-% fg                : Figure object
-% tl                : Tiled layout object
-% ax                : Axes object
-%   ax(n,m)         : Specific axis, row n, column m
-%   ax(i)           : Specific axis, in order of nexttile() ; 
-%% Example Code : 
-% [fg,tl,ax] = tiledGen(3,2) ; % Generic tiled plot in a 3x2, with default 1x1 dicing
-% [fg,tl,ax] = tiledGen(3,3,[3,2;2,1;1,1]) ; % Specific way of dicing a 3x3 plot into a 3x2, 2x1 and a 1x1 in that order
-% [fg,tl,ax] = tiledGen(3,3,[3,2;2,1]) ; % Specific way of dicing a 3x3 plot into a 3x2, 2x1 and an empty 1x1 in that order
-% [fg,tl,ax] = tiledGen(2,1) ; plot(ax(1,1),0:10,10-(0:10).^2) ; plot(ax(2,1),0:0.01:2*pi,sin(0:0.01:2*pi)) ; % Showing how to access specific axes using row / column 
-% [fg,tl,ax] = tiledGen(3,2) ; for i = 1 : 6 , plot(ax(i),0:0.01:2*pi,sin((0:0.01:2*pi)*i)) ; end ; % Showing how to use the tiled indices in a plot() ; function 
-% [fg,tl,ax] = tiledGen(3,3,[3,2;2,1;1,1]) ; for i = 1 : 3 , plot(ax(i),0:0.01:2*pi,sin((0:0.01:2*pi)*i)) ; end ; % Showing how to use the tiled indices in a plot() ; function, with non-default dicing 
-% [fg,tl,ax] = tiledGen(3,3,[3,2;2,1;1,1]) ; for i = 1 : 3 , plot(ax(i),0:0.01:2*pi,sin((0:0.01:2*pi)*i)) ; end ; % Showing how to use the tiled indices in a plot() ; function, with non-default dicing 
-% [fg,tl,ax,lg] = tiledGen(2,2,[],'lg') ; colList = summer(3) ; for i = 1 : 3 , plot(ax(i),0:0.01:2*pi,sin((0:0.01:2*pi)*i),'LineWidth',2) ; plot(ax(end),0:0.01:2*pi,sin((0:0.01:2*pi)*i),'LineWidth',2,'Color',colList(i,:),'DisplayName','Plot \#'+string(i)) ; end % Showing how the legend targets the final set of axes, and how to set it up
-% [fg,tl,ax,lg,cb] = tiledGen(2,2,[],'lg','ColorBar',3,'cbType','summer') ; colList = summer(3) ; for i = 1 : 3 , plot(ax(i),0:0.01:2*pi,sin((0:0.01:2*pi)*i),'LineWidth',2) ; plot(ax(end),0:0.01:2*pi,sin((0:0.01:2*pi)*i),'LineWidth',2,'Color',colList(i,:),'DisplayName','Plot \#'+string(i)) ; end % Colourbar example
+%    Generate a tiled layout easily (made to work alongside figGen.m)
+%% Inputs   :
+%   N       : Number of rows
+%   M       : Number of columns
+%% Outputs  :
+%   fg      : Figure object
+%   tl      : Tiled object
+%   ax      : Axes objects (1:length(N*M))
+%   lg      : Legend object
+%
+%% Optional Inputs  :
+%   General :
+%       'Title'=true/false : Create a title object for the tiled layout
+%       'Subtitle'=true/false : Create a subtitle object for the tiled layout
+%       'lg'=true/false : Create a legend for the tiled layout, targetting lgTile
+%       'Place'=figPlace.m : Places the axes in the position (see figPlace.m)
+%       'Resolution'=standardRes.m : Sets the resolution type (see standardRes.m)
+%   Tiled Layout :
+%       'Dicing'=[n,m;n,m;...] : Dicing of the tiled layout, rows and columns in order of left-to-right, top-to-bottom
+%       'lgTile'=i : Selects the tile the legend targets
+%       'EachTitle'=true/false : Create a title for every tile
+%       'EachSubtitle'=true/false : Create a subtitle for every tile
+%   Specifics :
+%       'FontSize'=u : General font size for the axes object (all text scales relative to this!)
+%       'Square'=true/false : The axes are square
+%   ColorBar :
+%       'ColorBar'=u/false      : Generates a ColorBar with the specified input (either false or N)
+%       'cbType'=colorMap       : Sets the colourmap of the Colorbar object (eg. "winter","summer","1-summer" etc.)
+%       'cbRev'=true/false      : Reverses the cbType
+%% Optional Outputs:
+%   cBar : Colorbar object
+%   dbgObject : The debugging object (containing all relevant data)
+%
+%% Created by George R. Smith - grs44@bath.ac.uk 
 
-if nargin == 0 , N = 2 ; M = 2 ; end 
-if nargin == 2 , dicing = ones(N*M,2) ; end 
-if size(dicing) == 0 , dicing = ones(N*M,2) ; end 
-fontSize = 18 ; 
+%% 
+if nargin == 0 , close all ; N = 2 ; M = 3 ; end
 
-% fg = figure ; fg.Position = [(1920-1200)/2,(1080-600)/2,1200,600] ; % Old Default
-fg = figure ; fg.Position = [(1920-1200)/2,(1080-600)/2,720,540] ; % Dual Column Paper 
-figPlace(fg,'M') ; 
-tl = tiledlayout(N,M) ;
+%% Input Handling
+p = inputParser() ; 
+% Figure
+addParameter(p,'Title',false) ; 
+addParameter(p,'Subtitle',false) ; 
+addParameter(p,'lg',false) ; 
+addParameter(p,'Place','R') ; 
+addParameter(p,'Resolution','')
+% Tiled
+addParameter(p,'Dicing',[]) ; 
+addParameter(p,'lgTile',inf) ; 
+addParameter(p,'EachTitle',false) ; 
+addParameter(p,'EachSubtitle',false) ; 
+% Specifics
+addParameter(p,'FontSize',18) ; 
+addParameter(p,'Square',false) ; 
+% Colorbar
+addParameter(p,'ColorBar',false) ; 
+addParameter(p,'cbType','cmapGen2') ; 
+addParameter(p,'cbRev',false) ; 
 
-if contains("fontSize",string(varargin)) , [~,fontSizei] = find(string(varargin) == 'fontSize') ; fontSize = cell2mat(varargin(fontSizei+1)) ; end
-if contains("Title",string(varargin)) , title(tl,"Title",'interpreter','latex','FontSize',fontSize+6) ; end
-if contains("Subtitle",string(varargin)) , subtitle(tl,"Subtitle",'interpreter','latex','FontSize',fontSize+2) ; end
-if contains("lgTile",string(varargin)) , [~,lgi] = find(string(varargin) == 'lgTile') ; lgTile = cell2mat(varargin(lgi+1)) ; end
-if contains("debugging",string(varargin)) , debugging = true ; else , debugging = false ; end 
+parse(p,varargin{:}) ; 
+% Figure
+titleBool = p.Results.Title ; 
+subtitleBool = p.Results.Subtitle ; 
+lgBool = p.Results.lg ; 
+placeLocation = p.Results.Place ; 
+% Tiled
+dicing = p.Results.Dicing ; 
+lgTile = p.Results.lgTile ; 
+eachTitleBool = p.Results.EachTitle ; 
+eachSubtitleBool = p.Results.EachSubtitle ; 
+% Specifics
+fontSize = p.Results.FontSize ; 
+squareBool = p.Results.Square ; 
+% Colorbar
+cbBool = p.Results.ColorBar ; 
+if cbBool == true , cbN = 100 ; elseif max(cbBool == false) , cbBool = false ; else , cbBool = true ; cbN = p.Results.ColorBar ; end
+cbType = p.Results.cbType ; 
+cbRevBool = p.Results.cbRev ; 
 
-for i = 1 : nargin -3
-    if string(varargin(i)) == "ColorBar"
-        if i+1 > nargin , error("No N argument") ; end
-        cbN = str2double(string(varargin(i+1))) ;
-        i = i + 1 ;
-    end 
-    if string(varargin(i)) == "cbType"
-        if i+1 > nargin , error("No cbType argument") ; end
-        cbType = string(varargin(i+1)) ;
-        i = i + 1 ;
-    end 
-end 
+varargout{1} = p.Results ; 
 
-ax = gobjects(N,M) ; 
-i = 0 ; 
-k = 0 ; 
-for n = 1 : N 
-    for m = 1 : M 
-        i = i + 1 ; 
-        if i <= size(dicing,1) 
-            ax(n,m) = nexttile(dicing(i,:)) ; ax(n,m).Box = 'on' ; colororder(ax(n,m),'k') ; ax(n,m).FontSize = fontSize ; 
-            if contains("Eachtitle",string(varargin)) , title(ax(n,m),"Title",'interpreter','latex','FontSize',fontSize+6) ; end
-            if contains("Eachsubtitle",string(varargin)) , subtitle(ax(n,m),"Subtitle",'interpreter','latex','FontSize',fontSize+2) ; end
-            hold all ; ax(n,m).LineWidth = 2 ; grid on ; grid('minor') ; if any(version('-release') == ["2023b","2024a","2024b"]) , ax(n,m).GridLineWidth = 1 ; end 
-            xlabel('x','interpreter','latex','FontSize',fontSize+2) ; ylabel('y','interpreter','latex','FontSize',fontSize+2) ; zlabel('z','interpreter','latex','FontSize',fontSize+2) ; 
-            if debugging == true 
-                ax(n,m).XLabel.String = "" ; ax(n,m).YLabel.String = "" ; ax(n,m).ZLabel.String = "" ; 
-            end 
-            ax(n,m).TickLabelInterpreter = 'latex' ; ax(n,m).XAxis.FontSize = fontSize ; ax(n,m).YAxis.FontSize = fontSize ; 
-            colormap(cmapGen(100)) ; 
-        end 
+%% Create Figure
+fg = figure ; 
+fg.Position([3,4]) = standardRes("SVGA") ; 
+if squareBool , fg.Position([3,4]) = standardRes("SQFHD")/3 ; end
+fg.Theme = 'light' ; 
+figPlace(fg,placeLocation) ; 
+
+%% Tiled Layout
+tl = tiledlayout(N,M) ; 
+
+%% Axes
+if isempty(dicing) , dicing = ones(N*M,2) ; end 
+ax = gobjects(1,size(dicing,1)) ; 
+for i = 1 : size(dicing,1)
+    ax(i) = nexttile(dicing(i,:)) ; 
+    colororder('k') ; % Only plot in black by default
+    ax(i).Box = 'on' ; 
+    ax(i).FontSize = fontSize ; ax(i).XAxis.FontSize = fontSize ; ax(i).YAxis.FontSize = fontSize ; ax(i).ZAxis.FontSize = fontSize ; 
+    hold on ; ax(i).LineWidth = 2 ; grid on ; grid('minor') ; 
+    if any(version('-release')==["2023b","2024a","2024b"]) , ax(i).GridLineWidth = 1 ; end
+    xlabel(ax(i),"x$_"+i+"$",'FontSize',fontSize+2,'Color','k') ; 
+    ylabel(ax(i),"y$_"+i+"$",'FontSize',fontSize+2,'Color','k') ; 
+    zlabel(ax(i),"z$_"+i+"$",'FontSize',fontSize+2,'Color','k') ; 
+end
+
+%% Legend
+if lgBool
+    lg = legend(ax(min(lgTile,size(dicing,1))),'Orientation','Horizontal','Location','southoutside','FontSize',fontSize-2,'TextColor','k') ; 
+    if max(contains(p.UsingDefaults,'lgTile'))
+        lg.Units = 'normalized' ; 
+        lg.Position(1) = ax(1).Position(1) ; 
+        tl.Position(2) = tl.Position(2) + 0.08 ; 
+        tl.Position(4) = tl.Position(4) - 0.05 ; 
     end
-end 
-if contains('lg',string(varargin)) , k = k + 1 ;  
-    if exist('lgTile','var')
-        lg = legend(ax(lgTile),'Orientation','horizontal','Location','southoutside','interpreter','latex','FontSize',fontSize) ; lg.Layout.Tile = 'South' ;
+else , lg = [] ; end
+
+%% Titles
+if titleBool 
+    title(tl,"Title",'FontSize',fontSize+6,'Interpreter','latex') ; 
+    tl.Position(4) = tl.Position(4) - 0.08 ; 
+    if ~lgBool , tl.Position(2) = tl.Position(2) + 0.02 ; tl.Position(4) = tl.Position(4) + 0.05 ; end
+end
+if subtitleBool 
+    subtitle(tl,"Subtitle",'FontSize',fontSize+2,'Interpreter','latex') ; 
+    tl.Position(4) = tl.Position(4)-0.05 ; 
+end
+if eachTitleBool
+    tl.Position(4) = tl.Position(4)-0.08 ; 
+    for i = 1 : length(ax)
+        title(ax(i),"Eachtitle",'FontSize',fontSize+6) ; 
+    end
+end
+if eachSubtitleBool
+    tl.Position(4) = tl.Position(4)-0.05 ; 
+    for i = 1 : length(ax)
+        subtitle(ax(i),"Eachsubtitle",'FontSize',fontSize+2) ; 
+    end
+end
+
+%% ColorBar
+if cbBool
+    colList = eval(cbType+"(cbN)") ; if cbRevBool , colList = colList(end:-1:1,:) ; end , colormap(colList) ; 
+    colorBar = colorbar(ax(end),"eastoutside",'Ticks',linspace(0,1,cbN+1),'TickLabelInterpreter','latex','FontSize',fontSize-4) ; 
+    tl.Position(1) = tl.Position(1)-0.025 ; tl.Position(3) = tl.Position(3)-0.04 ; 
+    colorBar.Position(4) = tl.Position(4) ; colorBar.Position(2) = tl.Position(2) ; 
+    colorBar.Position(1) = tl.Position(1)+tl.Position(3)+0.05 ; 
+    if cbN < 25
+        colorBar.TickLabels(1) = {""} ; 
+        for i = 2 : length(colorBar.TickLabels)
+            colorBar.TickLabels(i) = {"u"+(i-1)} ; 
+        end
     else
-        lg = legend('Orientation','horizontal','Location','southoutside','interpreter','latex','FontSize',fontSize) ; lg.Layout.Tile = 'South' ;
+        for i = 1 : length(colorBar.TickLabels)
+            colorBar.TickLabels(i) = {""} ; 
+        end
     end
-    varargout{k} = lg ;
+    varargout{1}.cBar = colorBar ; 
 end
 
-if contains('ColorBar',string(varargin)) ,  k = k + 1 ; 
-    if exist('cbType','var') 
-        colList = eval(cbType+"(cbN)") ; 
-    else 
-        colList = cmapGen(cbN) ; 
-    end 
-    if max(contains(string(varargin),"cbRev")) , colList = colList(end:-1:1,:) ; end 
-    colormap(colList) ; 
-    cBar = colorbar(ax(end),'eastoutside','Ticks',linspace(0,1,cbN+1),'TickLabels',["","Label "+string(1:cbN)],'TickLabelInterpreter','latex','FontSize',12) ;
-    cBar.Position(3) = cBar.Position(3)-0.005 ; cBar.Position(4) = ax(1).Position(2)+ax(1).Position(4)- ax(end).Position(2) ; 
-    varargout{k} = cBar ;
 end
-set(0,"DefaultLineLineWidth",2) ; 
-
-iBad = [] ; 
-for i = 1 : size(ax,1)*size(ax,2)
-    try ax(i).XLim ; catch iBad = [iBad,i] ; end 
-end 
-logicalIndices = true(size(ax,1)*size(ax,2),1) ; 
-logicalIndices(iBad) = false ; 
-ax = ax(logicalIndices) ; 
-for i = 1 : length(ax) , ax(i).XLabel.String = i ; end 
-
-
-end 

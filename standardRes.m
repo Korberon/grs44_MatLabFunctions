@@ -1,4 +1,13 @@
 function varargout = standardRes(resRequest)
+%% standardRes.m
+%   Reminder / output of the standard monitor resolutions & names
+%% Inputs       :
+%   resRequst : The Requested resolution name
+%% Outputs  :
+%   res     : The resolution requested
+%
+%% Created by George R. Smith - grs44@bath.ac.uk 
+
 if nargin == 0 , open standardRes ; else
 
 switch resRequest
