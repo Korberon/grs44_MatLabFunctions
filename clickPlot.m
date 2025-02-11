@@ -1,34 +1,57 @@
-fileName = 'Drop Test Graph' ; 
+function [xOut,yOut] = clickPlot(fileName,varargin)
+%% clickPlot.m
+% Generates the data based on your pointer clicks on an image
+%% Inputs   : 
+% fileName  : Name of the image file
+%% Clicks   :
+% First     : First click specifies the origin
+% Second    : Second click specifies the maximum x position
+% Third     : Third click specifies the maximum y position
+%% Outputs  :
+% xOut      : x coordinates, based on clicks [0-1]
+% yOut      : y coordinates, based on clicks [0-1]
+%
+%% Optional Inputs  :
+% 'PlotMe'=true/false : Plot the data once done
+% 'XLim'=[min,max] : Maximum and minimum x values on the plot
+% 'YLim'=[min,max] : Maximum and minimum y values on the plot
+%
+%% Created by George R. Smith - grs44@bath.ac.uk 
 
-img = imread(fileName+".jpg") ; 
+p = inputParser() ; 
+addParameter(p,'PlotMe',true) ; 
+addParameter(p,'XLim',[0,1]) ; 
+addParameter(p,'YLim',[0,1]) ; 
+
+parse(p,varargin{:}) ; 
+plotMeBool = p.Results.PlotMe ; 
+YLim = p.Results.YLim ; 
+XLim = p.Results.XLim ; 
+
+img = imread(fileName) ; 
+
 image(img) ; 
-title("Click left button to set data points, right button to end")
-% You can adapt the following code to enter data interactively or automatically.
 
 x = [] ; 
 y = [] ; 
 
-hold on 
-% Firstly, get origin location. You'll also need another reference point 
-% for scaling. 
-[xOrigin, yOrigin, button] = ginput(1) ; 
-plot(xOrigin, yOrigin, '+b') % '+b' means plot a blue cross.
-
-while 1 % infinite loop
-    [x, y, button] = ginput(1); % get one point using mouse
-    if button ~= 1 % break if anything except the left mouse button is pressed
-        break
-    end
-    plot(x, y, 'og') % 'og' means plot a green circle.
-    
-    % Add data point to vectors. Note that x and y are pixel coordinates.
-    % You need to locate the pixel coordinates of the axes, interactively
-    % or otherwise, and scale the values into time (s) and temperature (F, C or K).
-    x = [x, x];
-    y = [y, y];
+playBool = true ; 
+while playBool
+    [x(end+1),y(end+1),buttonPress] = ginput(1) ; 
+    if buttonPress ~= 1 , playBool = false ; end
+        
 end
-hold off
 
-%save data to .mat file with same name as image file
-save(fileName, 'x', 'y')
+x = x-min(x) ; x = x/max(x) ; x = (x+XLim(1))*(XLim(2)-XLim(1)) ; 
+y = y-min(y) ; y = y/max(y) ; y = 1 - y ; y = (y+YLim(1))*(YLim(2)-YLim(1)) ; 
 
+xOut = x(4:end-1) ;
+yOut = y(4:end-1) ; 
+
+if plotMeBool
+    figGen ; 
+    plot(xOut,yOut,'LineStyle','none','Marker','x') ; 
+end
+
+
+end
