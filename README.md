@@ -30,8 +30,10 @@ List of Functions & One-Sentence Description (see "help functionName" in MatLab 
 - plotAbsolute() - Plot on the figure in absolute units
 - quickMSD() - Generates a Mass-Spring-Damper response
 - quickSinusoid() - Generates a Sinusoid
+- secant() - Secant method and method plotting
 - sodoff() - Restarts MatLab without restarting MatLab
 - standardRes() - Standard resolution sizes for different monitors
 - startup() - Example startup file
 - thouAxes() - Generates a Right-Hand axes in Imperial
 - tiledGen() - Generate a tiled figure, axes, etc., very modular, VERY USEFUL!
+- toNdp() - Round number to N decimal places
