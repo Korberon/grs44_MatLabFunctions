@@ -15,7 +15,8 @@ function [fg,ax,lg] = argandGen(varargin)
 %   [fg,ax] = argandGen('Title',true) ; ax.Position(1) = 0.2 ; title("Hysteresis") ; tList = 0:2^-13:20 ; plot(cos(tList*2*pi*15+0.1)*0.5,sin(tList*2*pi*15+1.31)*0.5)
 %% Created by George R. Smith - grs44@bath.ac.uk 
 
-[fg,ax,lg] = figGen('Square',true,varargin{:}) ;
+if exist('figGen','file') , [fg,ax,lg] = figGen('Square',true,varargin{:}) ; 
+else , fg = figure ; ax = axes ; axis equal ; axis padded ; lg = legend('Location','southoutside','Interpreter','latex') ; end
 xlabel("Re") ; ylabel("Im") ; 
-xline(0,'LineWidth',1,'Color','k','Alpha',1,'HandleVisibility','off') ; yline(0,'LineWidth',1,'Color','k','Alpha',1,'HandleVisibility','off') ; 
-axis equal 
+xline(0,'LineWidth',1,'Color','k','Alpha',1,'HandleVisibility','off') ; 
+yline(0,'LineWidth',1,'Color','k','Alpha',1,'HandleVisibility','off') ; 

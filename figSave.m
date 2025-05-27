@@ -28,6 +28,7 @@ addParameter(p,"pdf",false) ;
 addParameter(p,"pdfRes",200) ; 
 addParameter(p,"eps",false) ; 
 addParameter(p,"fig",true) ; 
+addParameter(p,"SaveDate",false) ; 
 
 parse(p,varargin{:}) ; 
 pngBool = p.Results.png ;
@@ -36,6 +37,10 @@ pdfBool = p.Results.pdf ;
 pdfRes = p.Results.pdfRes ; 
 epsBool = p.Results.eps ;
 figBool = p.Results.fig ;
+getDateBool = p.Results.SaveDate ; 
+
+%% Save DateFolder
+if getDateBool , mkdir(getDate) ; fName = getDate+"/"+fName ; end
 
 %% Save:
 if pngBool , exportgraphics(handle,fName+".png",'Resolution',pngRes) ; end

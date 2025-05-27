@@ -38,7 +38,7 @@ addParameter(p,'FontSize',18) ;
 addParameter(p,'Square',false) ; 
 % Colorbar
 addParameter(p,'ColorBar',false) ; 
-addParameter(p,'cbType','cmapGen2') ; 
+addParameter(p,'cbType','cmapGen') ; 
 addParameter(p,'cbRev',false) ; 
 
 parse(p,varargin{:}) ; 
@@ -61,9 +61,9 @@ varargout{1} = p.Results ;
 
 %% Create Figure
 fg = figure ; 
-fg.Position([3,4]) = standardRes("WVGA") ; % Dual Column Paper
-if squareBool , fg.Position([3,4]) = standardRes("SQFHD")/4 ; end
-figPlace(fg,placeLocation) ; % Place it centrally on the RH Monitor
+if exist('standardRes','file') , fg.Position([3,4]) = standardRes("WVGA") ; else , fg.Position([3,4]) =  [800,480] ; end % Dual Column Paper
+if squareBool , if exist('standardRes','file') , fg.Position([3,4]) = standardRes("SQFHD")/4 ; else , fg.Position([3,4]) =  [1920,1920]/4 ; end , end
+if exist('figPlace','file') , figPlace(fg,placeLocation) ; else, fg.Position([1,2]) = [1920,1080]-fg.Position([3,4])/2 ; end % Place it centrally on the RH Monitor
 fg.Theme = 'light' ; % If using New Desktop
 
 %% Axes
@@ -115,7 +115,7 @@ end
 
 %% 3D
 if f3Dbool
-    view(45,(180*asin(1/sqrt(3)))/pi) ; 
+    view(45,(180*asin(1/sqrt(3)))/pi);
     ax.Position(2) = ax.Position(2)-0.02 ; 
     ax.Position(4) = ax.Position(4)+0.025 ;
 end

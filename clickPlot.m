@@ -18,6 +18,11 @@ function [xOut,yOut] = clickPlot(fileName,varargin)
 %
 %% Created by George R. Smith - grs44@bath.ac.uk 
 
+%% Input Handling
+if nargin == 0 , fileName = [] ; end
+if or(nargin == 0,isempty(fileName)) , [fileName,location] = uigetfile({'*.png;*.jpeg','Image files'}) ; fileName = [location,fileName] ; end
+
+%% Variable Inputs
 p = inputParser() ; 
 addParameter(p,'PlotMe',true) ; 
 addParameter(p,'XLim',[0,1]) ; 
@@ -28,10 +33,18 @@ plotMeBool = p.Results.PlotMe ;
 YLim = p.Results.YLim ; 
 XLim = p.Results.XLim ; 
 
+%% Read Image
 img = imread(fileName) ; 
 
-image(img) ; 
+%% Plot Image for Clicking
+fg = figure ; 
+screenSize = sortrows(get(0,'MonitorPositions'), 1) ; 
+fg.Position = screenSize(end,:) ; 
 
+image(img) ; 
+axis equal ; 
+
+%% Get Data
 x = [] ; 
 y = [] ; 
 
@@ -39,19 +52,31 @@ playBool = true ;
 while playBool
     [x(end+1),y(end+1),buttonPress] = ginput(1) ; 
     if buttonPress ~= 1 , playBool = false ; end
-        
 end
+hold all ; 
+plot(x(4:end-1),y(4:end-1),'Color','k','Marker','x','Markersize',12,'LineWidth',3) ; 
+xline(x(1),'Color','k','LineStyle','--','Linewidth',2) ; 
+xline(x(2),'Color','k','LineStyle','--','Linewidth',2) ; 
+yline(y(1),'Color','k','LineStyle','--','Linewidth',2) ; 
+yline(y(3),'Color','k','LineStyle','--','Linewidth',2) ; 
+ax = gca() ; 
+drawnow ; 
+xLimSave = ax.XLim ; yLimSave = ax.YLim ; 
+patchIn = patch([xLimSave(1),xLimSave(1),x(2),x(2)],[yLimSave(2),y(1),y(1),yLimSave(2)],[1,1,1]*0.1) ; patchIn.FaceAlpha = 0.2 ; patchIn.LineStyle = 'none' ; 
+patchIn = patch([x(2),x(2),xLimSave(2),xLimSave(2)],[yLimSave(2),y(3),y(3),yLimSave(2)],[1,1,1]*0.1) ; patchIn.FaceAlpha = 0.2 ; patchIn.LineStyle = 'none' ; 
+patchIn = patch([x(1),x(1),xLimSave(2),xLimSave(2)],[yLimSave(1),y(3),y(3),yLimSave(1)],[1,1,1]*0.1) ; patchIn.FaceAlpha = 0.2 ; patchIn.LineStyle = 'none' ; 
+patchIn = patch([xLimSave(1),xLimSave(1),x(1),x(1)],[y(1),yLimSave(1),yLimSave(1),y(1)],[1,1,1]*0.1) ; patchIn.FaceAlpha = 0.2 ; patchIn.LineStyle = 'none' ; 
+xlim(xLimSave) ; ylim(yLimSave) ; 
 
-x = x-min(x) ; x = x/max(x) ; x = (x+XLim(1))*(XLim(2)-XLim(1)) ; 
-y = y-min(y) ; y = y/max(y) ; y = 1 - y ; y = (y+YLim(1))*(YLim(2)-YLim(1)) ; 
+x = x-min(x([1,3])) ; x = x/x(2) ; x = x*(XLim(2)-XLim(1))+XLim(1) ; 
+y = y-min(y([1,2])) ; y = y/y(3) ; y = y*(YLim(2)-YLim(1))+YLim(1) ; 
 
 xOut = x(4:end-1) ;
 yOut = y(4:end-1) ; 
 
 if plotMeBool
-    figGen ; 
+    if exist('figGen','file') , figGen('Place','Rl') ; else , figure() ; end
     plot(xOut,yOut,'LineStyle','none','Marker','x') ; 
 end
-
 
 end

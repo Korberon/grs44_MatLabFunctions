@@ -18,6 +18,6 @@ elseif index == 2
     ddy(:,1) = ( (y(:,3)-y(:,2))/xD(2) - (y(:,2)-y(:,1))/xD(1) ) / (xD(2) + xD(1))*2 ; 
     ddy(:,end) = ( (y(:,end)-y(:,end-1))/xD(end) - (y(:,end-1)-y(:,end-2))/xD(end-1) ) / (xD(end) + xD(end-1))*2 ; 
 
-    ddy(:,1) = mean(ddy(:,1:3)) ; 
-    ddy(:,end) = mean(ddy(:,end-2:end)) ; 
+    ddy(:,1) = mean(ddy(:,1:3)')' ; 
+    ddy(:,end) = mean(ddy(:,end-2:end)')' ; 
 end 

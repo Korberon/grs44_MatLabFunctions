@@ -23,9 +23,10 @@ if size(y,1) == 1 , nList = (1:length(y)) ; else , nList = (1:length(y))' ; end
 
 unitCircle = exp(-1j*2*pi*f*nList*dt) ; 
 Yt2 = y.*exp(-1j*2*pi*f*nList*dt) ; 
-Y = sum( y.*exp(-1j*2*pi*f*nList*dt) ) ; 
 
+Y = sum( y.*exp(-1j*2*pi*f*nList*dt) ) ; 
 Y = Y / length(y) ; % Normalising 
+
 varargout{1} = unitCircle ; 
 varargout{2} = Yt2 ; 
 end 

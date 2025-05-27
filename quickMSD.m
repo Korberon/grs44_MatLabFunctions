@@ -36,7 +36,7 @@ addParameter(p,"K",1000) ;
 addParameter(p,"Solver","RK4") ; 
 addParameter(p,"dt",0.01) ; 
 addParameter(p,"tStart",0) ; 
-addParameter(p,"tEnd",10) ; 
+addParameter(p,"tEnd",2) ; 
 addParameter(p,"tList",[]) ;
 addParameter(p,"PlotMe",true) ; 
 % Excitation
@@ -48,7 +48,6 @@ addParameter(p,"StepHeight",10) ;
 addParameter(p,"zInit",0) ; 
 
 parse(p,varargin{:}) ; 
-varargout{1} = p.Results ; 
 M = p.Results.M ; 
 C = p.Results.C ; 
 K = p.Results.K ; 
@@ -101,12 +100,14 @@ end
 
 %% Plotting
 if plotMe
-    [fg,tl,ax,lg] = tiledGen(2,1,'lg',true) ; 
-    xlabel(ax(1),"") ; ylabel(ax(1),axLab("Displacement")) ; 
-    xlabel(ax(2),axLab("Time")) ; ylabel(ax(2),axLab("Force")) ; 
-    plot(ax(1),tList,z(1,:),'k','HandleVisibility','off')
-    plot(ax(2),tList,s(:),'r--','HandleVisibility','off')
+    if exist('tiledGen','file') , [fg,tl,ax] = tiledGen(2,1) ; 
+    else , fg = figure ; fg.Position = [0,0,1920,1080]/2+[1920,1080,0,0]/4 ; tl = tiledlayout(2,1) ; ax(1) = nexttile ; hold all ; ax(2) = nexttile ; hold all ; end
 
+    xlabel(ax(1),"") ; ylabel(ax(1),"Displacement (m)") ; 
+    xlabel(ax(2),"Time (s)") ; ylabel(ax(2),"Force (N)") ; 
+    plot(ax(1),tList,z(1,:),'k','HandleVisibility','off')
+    plot(ax(2),tList,s(:),'k','HandleVisibility','off')
+    
 end
 
 %% ODE
@@ -117,4 +118,8 @@ function dz = odeSolve(z,M,C,K,s)
 end
 
 %% Output
+varargout{1}.t = tList ; 
+varargout{1}.f = s ; 
+varargout{1}.y = z(1,:) ; 
+varargout{end+1} = p.Results ; 
 end

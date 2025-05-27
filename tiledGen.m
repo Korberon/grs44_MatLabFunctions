@@ -33,6 +33,11 @@ function [fg,tl,ax,lg,varargout] = tiledGen(N,M,varargin)
 %   cBar : Colorbar object
 %   dbgObject : The debugging object (containing all relevant data)
 %
+%% Example Code :
+%   [fg,tl,ax] = tiledGen(3,2) ; 
+%   [fg,tl,ax,lg] = tiledGen(3,2,'lg',true) ; 
+%   [fg,tl,ax] = tiledGen(3,3,'Dicing',[1,3;2,2;2,1]) ; 
+%
 %% Created by George R. Smith - grs44@bath.ac.uk 
 
 %% 
@@ -45,7 +50,8 @@ addParameter(p,'Title',false) ;
 addParameter(p,'Subtitle',false) ; 
 addParameter(p,'lg',false) ; 
 addParameter(p,'Place','R') ; 
-addParameter(p,'Resolution','')
+addParameter(p,'Resolution','SVGA') ; 
+addParameter(p,'fig3D',false) ; 
 % Tiled
 addParameter(p,'Dicing',[]) ; 
 addParameter(p,'lgTile',inf) ; 
@@ -56,7 +62,7 @@ addParameter(p,'FontSize',18) ;
 addParameter(p,'Square',false) ; 
 % Colorbar
 addParameter(p,'ColorBar',false) ; 
-addParameter(p,'cbType','cmapGen2') ; 
+addParameter(p,'cbType','cmapGen') ; 
 addParameter(p,'cbRev',false) ; 
 
 parse(p,varargin{:}) ; 
@@ -65,6 +71,8 @@ titleBool = p.Results.Title ;
 subtitleBool = p.Results.Subtitle ; 
 lgBool = p.Results.lg ; 
 placeLocation = p.Results.Place ; 
+resolutionReq = p.Results.Resolution ; 
+f3Dbool = p.Results.fig3D ; 
 % Tiled
 dicing = p.Results.Dicing ; 
 lgTile = p.Results.lgTile ; 
@@ -76,17 +84,20 @@ squareBool = p.Results.Square ;
 % Colorbar
 cbBool = p.Results.ColorBar ; 
 if cbBool == true , cbN = 100 ; elseif max(cbBool == false) , cbBool = false ; else , cbBool = true ; cbN = p.Results.ColorBar ; end
-cbType = p.Results.cbType ; 
+cbType = p.Results.cbType ; if and(contains(cbType,'cmapGen'),~exist('cmapGen','file')) , cbType = '1-summer' ; end
 cbRevBool = p.Results.cbRev ; 
 
 varargout{1} = p.Results ; 
 
 %% Create Figure
 fg = figure ; 
-fg.Position([3,4]) = standardRes("SVGA") ; 
-if squareBool , fg.Position([3,4]) = standardRes("SQFHD")/3 ; end
+if exist('standardRes','file') , resolution = standardRes(resolutionReq) ; 
+else , resolution = [800,600] ; if ~contains(p.UsingDefaults,"Resolution") , warning("Resolution Requested ignored: see standardRes.m for more") ;  end
+end
+
+if squareBool , fg.Position([3,4]) = resolution/3 ; else , fg.Position([3,4]) = resolution ; end
 fg.Theme = 'light' ; 
-figPlace(fg,placeLocation) ; 
+if exist('figPlace','file') , figPlace(fg,placeLocation) ; else , fg.Position([1,2]) = [1920,1080]/2-fg.Position([3,4])/2 ; end
 
 %% Tiled Layout
 tl = tiledlayout(N,M) ; 
@@ -101,9 +112,10 @@ for i = 1 : size(dicing,1)
     ax(i).FontSize = fontSize ; ax(i).XAxis.FontSize = fontSize ; ax(i).YAxis.FontSize = fontSize ; ax(i).ZAxis.FontSize = fontSize ; 
     hold on ; ax(i).LineWidth = 2 ; grid on ; grid('minor') ; 
     if any(version('-release')==["2023b","2024a","2024b"]) , ax(i).GridLineWidth = 1 ; end
-    xlabel(ax(i),"x$_"+i+"$",'FontSize',fontSize+2,'Color','k') ; 
-    ylabel(ax(i),"y$_"+i+"$",'FontSize',fontSize+2,'Color','k') ; 
-    zlabel(ax(i),"z$_"+i+"$",'FontSize',fontSize+2,'Color','k') ; 
+    xlabel(ax(i),"x$_{"+i+"}$",'FontSize',fontSize+2,'Color','k') ; 
+    ylabel(ax(i),"y$_{"+i+"}$",'FontSize',fontSize+2,'Color','k') ; 
+    zlabel(ax(i),"z$_{"+i+"}$",'FontSize',fontSize+2,'Color','k') ; 
+    if f3Dbool , view(ax(i),45,(180*asin(1/sqrt(3)))/pi); end
 end
 
 %% Legend

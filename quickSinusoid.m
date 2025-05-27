@@ -40,10 +40,10 @@ freq = p.Results.freq ;
 Y = p.Results.Y ; 
 
 %% Generate the Sinusoid 
-y = abs(Y)*cos(tList*2*pi*freq+angle(Y)) ; 
+y = 2*abs(Y)*cos(tList*2*pi*freq+angle(Y)) ; 
 if plotMeBool
-    if isempty('ax') , [fg,ax] = figGen ; end
-    plot(ax,tList,y) ; 
+    if isempty(ax) , if exist('figGen','file') , [fg,ax] = figGen ; else , fg = figure ; ax = axes ; hold all ; end 
+    plot(ax,tList,y,'k') ; 
     xlabel("Time (s)") ; 
     ylabel(freq+" Hz Signal") ; 
 end

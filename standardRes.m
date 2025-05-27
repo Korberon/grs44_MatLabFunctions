@@ -5,7 +5,6 @@ function varargout = standardRes(resRequest)
 %   resRequst : The Requested resolution name
 %% Outputs  :
 %   res     : The resolution requested
-%
 %% Created by George R. Smith - grs44@bath.ac.uk 
 
 if nargin == 0 , open standardRes ; else
@@ -40,5 +39,7 @@ switch resRequest
         resy = [200,240,480,320,480,600,720,800,960,1050,1080,1536,1920,2048,2160,2880] ; 
         res = [[resx,zeros(1,length(resy)-length(resx))];[resy,zeros(1,length(resx)-length(resy))]] ; 
 end
+
+%% Output Handling
 varargout{1} = res ; 
 end
