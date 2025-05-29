@@ -1,4 +1,32 @@
 function patchAbsolute(x,y,varargin)
+%% patchAbsolute
+%   Plots a patch (solid area) over a plot, without affecting the plot 
+%% Inputs   :
+%   x       : List of x coordinates (in absolute, relative to the window size
+%   y       : List of y coordinates (in absolute, relative to the window size) WARNING! Will be scaled by default to be equally plotted as x (turn off by disabling 'Equal')
+%% Outputs  :
+%   None
+%% Optional Inputs  :
+%   Plotting : 
+%       'Scale'=u : [1] : Scale the x/y inputs
+%       'Corner'='t/b','l/r' : ['tr'] : Which corner of the plot to be over
+%       'ax'=axObj : [gca()] : Which axes to plot it on
+%       'fg'=fgObj : [gcf()] : Which figure to plot it on
+%       'Free'=[x,y,w,h]/false : [false] : Input quad-coordinates (x/y/w/h) to plot the x/y into
+%       'Equal'=true/false : [true] : Scale the x/y to be equal
+%       'Padded'=true/false : [true] : Padding from the axes edges
+%       'Debug'=true/false : [false] : Shows the fake axes limits, useful if wanting to use 'Free'=xywh
+%   Colours : 
+%       'Color'=[r,g,b] : [0,0,0] : Colour of the Patch face
+%       'EdgeColor'=[r,g,b] : ['Color'] : Colour of the lineart
+%       'Alpha'=u : [1] : Alpha transparency of the face
+%       'LineStyle'='-'/'--'/etc. : 'none' : Style of the lineart
+%       'Linewdith'=px : 2 : Thicknesss of the lineart
+%       'Marker'='x'/'o'/'sq'/etc. : 'none' : Marker Style
+%       'MarkerSize'=px : 8 : Size of the Marker
+% 
+%% Created by George R. Smith - grs44@bath.ac.uk 
+
 %% No-Input Example
 if nargin == 0 
     close all ; 
@@ -26,6 +54,8 @@ addParameter(p,'EdgeColor',[]) ;
 addParameter(p,'Alpha',1) ; 
 addParameter(p,'LineStyle','none') ; 
 addParameter(p,'LineWidth',2) ; 
+addParameter(p,'Marker','none') ; 
+addParameter(p,'MarkerSize',8) ; 
 % Parse
 parse(p,varargin{:}) ; 
 % Plotting
@@ -44,6 +74,8 @@ edgeColor = p.Results.EdgeColor ; if isempty(edgeColor) , edgeColor = faceColor 
 faceAlpha = p.Results.Alpha ; 
 lineStyle = p.Results.LineStyle ; 
 lineWidth = p.Results.LineWidth ; 
+markerCase = p.Results.Marker ; 
+markerSize = p.Results.MarkerSize ; 
 
 %% Equal Axes
 if equalBool
@@ -96,7 +128,7 @@ axFake.XGrid = 1 ; axFake.YGrid = 1 ;
 axFake.XLim = [min(x),max(x)] ; axFake.YLim = [min(y),max(y)] ; 
 
 %% Patch
-patchOut = patch(axFake,x,y,faceColor,'LineStyle',lineStyle,'LineWidth',lineWidth,'EdgeColor',edgeColor) ; 
+patchOut = patch(axFake,x,y,faceColor,'LineStyle',lineStyle,'LineWidth',lineWidth,'EdgeColor',edgeColor,'Marker',markerCase,'MarkerSize',markerSize) ; 
 patchOut.FaceAlpha = faceAlpha ; 
 
 %% Output Handling
