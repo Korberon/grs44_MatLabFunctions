@@ -83,7 +83,7 @@ xOut = x(4:end-1) ;
 yOut = y(4:end-1) ; 
 
 if plotMeBool
-    if exist('figGen','file') , figGen('Place','Rl') ; else , figure() ; end
+    if exist('figGen','file') , figGen('Place','Rtl') ; else , fg = figure() ; fg.Position = screenSize(end,:) ; end
     plot(xOut,yOut,'LineStyle','none','Marker','x') ; 
 end
 
