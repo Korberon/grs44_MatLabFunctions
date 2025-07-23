@@ -25,11 +25,13 @@ if or(nargin == 0,isempty(fileName)) , [fileName,location] = uigetfile({'*.png;*
 %% Variable Inputs
 p = inputParser() ; 
 addParameter(p,'PlotMe',true) ; 
+addParameter(p,'PlotLive',true) ; 
 addParameter(p,'XLim',[0,1]) ; 
 addParameter(p,'YLim',[0,1]) ; 
 
 parse(p,varargin{:}) ; 
 plotMeBool = p.Results.PlotMe ; 
+plotLiveBool = p.Results.PlotLive ; 
 YLim = p.Results.YLim ; 
 XLim = p.Results.XLim ; 
 
@@ -43,6 +45,7 @@ fg.Position = screenSize(end,:) ;
 
 image(img) ; 
 axis equal ; 
+hold all ; 
 
 %% Get Data
 x = [] ; 
@@ -51,7 +54,12 @@ y = [] ;
 playBool = true ; 
 while playBool
     [x(end+1),y(end+1),buttonPress] = ginput(1) ; 
-    if buttonPress ~= 1 , playBool = false ; end
+    if buttonPress ~= 1 , playBool = false ; 
+    end
+    if min([ buttonPress == 1 , length(x)>3 , plotLiveBool ])
+        plot(x(end),y(end),'Color',[1,1,1]*1,'Marker','x','Markersize',16,'LineWidth',6) ; 
+        plot(x(end),y(end),'Color',[1,1,1]*0,'Marker','x','Markersize',12,'LineWidth',3) ; 
+    end
 end
 hold all ; 
 plot(x(4:end-1),y(4:end-1),'Color','k','Marker','x','Markersize',12,'LineWidth',3) ; 
